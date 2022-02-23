@@ -16,9 +16,11 @@ keywords:
 ---
 # 🏠 Home Screen
 
-##    
+Lets create some widgets , commonly used within the app
 
-Create a `constants.dart`📄 file under `helpers` 📁 folder
+Action buttons, to use as a buttons with same styling in the app.
+
+Create a `action_button.dart `📄 file under `widgets `📁 folder
 
 ```dart
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,8 +34,6 @@ final chatsRef = _db.collection('chats');
 final FirebaseStorage _storage = FirebaseStorage.instance;
 final storageRef = _storage.ref();
 ```
-
- 
 
 Create a new 📄 file `home_page.dart`  under `screens` 📁 folder to match these fields and map data from the database.
 
