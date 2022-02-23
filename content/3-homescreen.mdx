@@ -1,10 +1,10 @@
 ---
 contentKey: chapter
-title: Home Screen and Login
+title: Home Screen
 stepNo: 4
-metaTitle: Home Screen and Login page
-metaDescription: Home Screen and Login description
-date: 2021-01-13T22:58:35.993Z
+metaTitle: Home Screen
+metaDescription: Home Screen
+date: 2022-02-23T13:27:51.907Z
 duration: 30 min
 tags:
   - flutter
@@ -14,7 +14,7 @@ keywords:
   - realm
   - studying
 ---
-# 🏠 Home Screen and Login
+# 🏠 Home Screen
 
 ## 🔒 Authentication and Login
 
@@ -134,6 +134,7 @@ class AppUser {
   }
 }
 ```
+
 <span style="color:#59afe1"> FYI : understand this piece of code</span>
 
 ```dart
@@ -406,7 +407,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
 ```
 
 ### Update Main.dart
@@ -418,6 +418,7 @@ void main() async {
 +  WidgetsFlutterBinding.ensureInitialized();
 +  await Firebase.initializeApp();
 ```
+
 <span style="color:#FF003B">Delete class `MyHomePage` and direct home to the new `LoginScreen`.</span>
 
 ```
