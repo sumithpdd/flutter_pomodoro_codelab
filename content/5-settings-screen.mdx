@@ -1,10 +1,10 @@
 ---
 contentKey: chapter
-title: Settings Screen
+title: Settings Screen and Realm
 stepNo: 6
-metaTitle: Settings Screen page
-metaDescription: Settings Screen description
-date: 2022-01-25T21:11:31.867Z
+metaTitle: Settings Screen and Realm
+metaDescription: Settings Screen and Realm description
+date: 2022-02-23T15:52:18.093Z
 duration: 30 min
 tags:
   - flutter
@@ -227,6 +227,8 @@ IconButton(
 
 Everything is hard coded as the data is coming from dummy data.  Lets add a data store we can use **shared preferences**, **firebase**, but in this case we will use realm
 
+# Realm
+
 <https://pub.dev/packages/realm>
 
 Install the realm package and update pubspec.yaml
@@ -241,7 +243,7 @@ dependencies:
   realm: ^0.2.0+alpha
 ```
 
-Update our model to Realm spec , `model.dart` 📄 file under `models `📁 folder , We have created pomodoroType model and UserRunHistoryModel
+Update our model to Realm spec , `model.dart` 📄 file under `models `📁 folder , We have created **PomodoroType** model and **UserRunHistoryModel**
 
 ```
 import 'package:realm/realm.dart';
@@ -273,15 +275,11 @@ class _UserRunHistory {
 
 ```
 
-To generate the `model.g.dart `file ,
-
-run this this in terminal
+To generate the `model.g.dart `file , run this this in terminal
 
 ```
 flutter pub run realm generate
 ```
-
-
 
 we will create a database_service class to call ***Ream* database** and perform CRUD.
 
@@ -620,7 +618,7 @@ class _HomePageState extends State<HomePage> {
 
 ```
 
-modify `settings_screen.dart `and add ***database***
+modify `settings_screen.dart `and add ***database calls***
 
 ```
 // ignore_for_file: prefer_const_constructors
@@ -808,3 +806,7 @@ class _FacilitiesWidgetState extends State<IncrementDecrement> {
 }
 
 ```
+
+ 
+
+![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1645631681/pomodoro_app/03_Pomodoro_Updates_hcwijr.png)
