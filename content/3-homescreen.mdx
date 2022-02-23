@@ -53,6 +53,90 @@ class ActionButton extends StatelessWidget {
 }
 ```
 
+Create a `label_text.dart` 📄 file under `widgets `📁 folder , this is to show the label in the countdown
+
+```dart
+// ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors
+
+import 'package:flutter/material.dart';
+
+import '../helpers/app_constants.dart'; 
+
+class LabelText extends StatelessWidget {
+  LabelText({Key? key, this.label, this.value}) : super(key: key);
+
+  final String? label;
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 5),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        color: kbuttonBackgoundColor,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            '$value',
+            style: TextStyle(
+                color: kPrimaryLabelColor,
+                fontSize: 55,
+                fontWeight: FontWeight.bold),
+          ),
+          Text(
+            '$label',
+            style: TextStyle(
+              color: kSecondaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+```
+
+Create a `action_button.dart `📄 file under `widgets `📁 folder
+
+```dart
+import 'package:flutter/material.dart';
+
+import '../helpers/app_constants.dart';
+
+class ActionButton extends StatelessWidget {
+  final String title;
+  final VoidCallback? onPressed;
+  const ActionButton({Key? key, required this.title, this.onPressed})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: ElevatedButton(
+            child: Text(title, style: const TextStyle(fontSize: 12)),
+            style: ButtonStyle(
+                foregroundColor:
+                    MaterialStateProperty.all<Color>(kSecondaryLabelColor),
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(kbuttonBackgoundColor),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: const BorderSide(
+                            color: kbuttonBorderBackgoundColor)))),
+            onPressed: onPressed));
+  }
+}
+```
+
+
+
 Create a new 📄 file `home_page.dart`  under `screens` 📁 folder to match these fields and map data from the database.
 
 ```dart 
