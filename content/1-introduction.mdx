@@ -51,19 +51,27 @@ https://youtu.be/ICGil7koTQM
   flutter pub get
   flutter run
   ```
+* use an emulator or a device
 
-  * use an emulator or a device
+  ```
+  // IOS
+  xcrun simctl list
+  open -a Simulator --args -CurrentDeviceUDID <your device UDID>
 
-    ```
-    // IOS
-    xcrun simctl list
-    open -a Simulator --args -CurrentDeviceUDID <your device UDID>
+  // Android
+  which adb
+  /Users/<user_name>/Library/Android/sdk/tools/emulator -list-avds
+  /Users/<user_name>/Library/Android/sdk/tools/emulator -avd <device name>
+  ```
 
-    // Android
-    which adb
-    /Users/<user_name>/Library/Android/sdk/tools/emulator -list-avds
-    /Users/<user_name>/Library/Android/sdk/tools/emulator -avd <device name>
-    ```
+### For windows Support
+
+```
+flutter config --enable-windows-desktop
+flutter create --platforms=windows .
+flutter pub get
+flutter run -d windows
+```
 
 <span style="color:#59afe1"> For validation and sharing only.</span>
 
