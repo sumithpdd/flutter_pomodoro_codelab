@@ -16,58 +16,7 @@ keywords:
 ---
 # 🏠 Home Screen
 
-## 🔒 Authentication and Login
-
-https://github.com/sumithpdd/flutterworkshop/tree/03_setup_firebase
-
-Lets first add login screen for that we need to call `auth service`, 
-
-We create or use  📁 Folder = > **services** -> File -> auth_service.dart 
-
-![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1643207682/Codelab/flutter_03_01_auth_service.dart_mdo96k.png)
-
-`we are adding FirebaseMessaging for token reference, not an important step`
-
-```dart
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/services.dart';
-
-class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-
-  Stream<User?> get user => _auth.authStateChanges();
-
-  Future<void> signup(String name, String email, String password) async {
-    try {
-      var authResult = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      if (authResult.user != null) {}
-    } on PlatformException {
-      rethrow;
-    }
-  }
-
-  Future<void> login(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-    } on PlatformException {
-      rethrow;
-    }
-  }
-
-  Future<void> logout() async {
-    Future.wait([
-      _auth.signOut(),
-    ]);
-  }
-}
-```
-
-This user should also be stored in a database, so that we can use it in chat.
+##    
 
 Create a `constants.dart`📄 file under `helpers` 📁 folder
 
@@ -84,28 +33,9 @@ final FirebaseStorage _storage = FirebaseStorage.instance;
 final storageRef = _storage.ref();
 ```
 
-go back and update `auth_service.dart` 📄 file and import 
+ 
 
-```
-import 'package:/helpers/constants.dart';
-```
-
-```dart
- if (authResult.user != null) {
-+        String? token = await _messaging.getToken();
-+        usersRef.doc(authResult.user!.uid).set({
-+          'name': name,
-+          'email': email,
-+          'profileImageUrl': '',
-+          'bio': '',
-+          'token': token,
-+       });
-      }
-```
-
-Full code.=> <https://github.com/sumithpdd/gdg_flutter_firebase_chat/blob/Authentication/lib/services/auth_service.dart>
-
-Create a new 📄 file `app_user.dart`  under `models` 📁 folder to match these fields and map data from the database.
+Create a new 📄 file `home_page.dart`  under `screens` 📁 folder to match these fields and map data from the database.
 
 ```dart 
 import 'package:cloud_firestore/cloud_firestore.dart';
