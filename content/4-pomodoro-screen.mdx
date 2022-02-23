@@ -52,7 +52,7 @@ class CountDownTimer {
 
 ```
 
-update **home_page.dart** 📄 file , to add the **circular timer** and **hook up** the start, resume buttons
+update **`home_page.dart`** 📄 file , to add the **circular timer** and **hook up** the start, resume buttons
 
 ```
 // ignore_for_file: prefer_const_constructors
@@ -281,18 +281,275 @@ List<PomodoroType> pomodoroData = [
 we will create a custom button bar to display buttons in a row, create a new class `custom_button_bar.dart `📄 file  under `widgets `📁 folder
 
 ```
+import 'package:flutter/material.dart';
 import '../helpers/app_constants.dart';
 import '../models/model.dart';
 
-List<PomodoroType> pomodoroData = [
-  PomodoroType(
-      id: 1, typeLabel: kWorkLabel, timeInMinutes: 25, isReverse: true),
-  PomodoroType(
-      id: 2, typeLabel: kLongBreakLabel, timeInMinutes: 10, isReverse: true),
-  PomodoroType(
-      id: 3, typeLabel: kShortBreakLabel, timeInMinutes: 5, isReverse: true),
-  PomodoroType(id: 4, typeLabel: k3minLabel, timeInMinutes: 3, isReverse: true),
-  PomodoroType(id: 5, typeLabel: k1minLabel, timeInMinutes: 1, isReverse: true),
-];
+class CustomButtonBar extends StatefulWidget {
+  final List<PomodoroType> pomodoroData;
+  final Function(PomodoroType) callback;
+  const CustomButtonBar(
+      {Key? key, required this.pomodoroData, required this.callback})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _CustomButtonBarState();
+  }
+}
+
+class _CustomButtonBarState extends State<CustomButtonBar> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final ButtonStyle _buttonStyle = ButtonStyle(
+    backgroundColor: MaterialStateProperty.all<Color>(kbuttonBackgoundColor),
+    side: MaterialStateProperty.all<BorderSide>(
+      const BorderSide(color: kbuttonBorderBackgoundColor, width: 1),
+    ),
+  );
+  int selectedIndex = 0;
+  List<Widget> _buildButtonsWithNames() {
+    var buttonsList = <Widget>[];
+    for (int index = 0; index < widget.pomodoroData.length; index++) {
+      buttonsList.add(ElevatedButton(
+          style: _buttonStyle,
+          onPressed: () async {
+            setState(() {
+              selectedIndex = index;
+            });
+            widget.callback(widget.pomodoroData[index]);
+          },
+          child: Text(
+            widget.pomodoroData[index].typeLabel!,
+            style: selectedIndex == index
+                ? kActionTextStyle
+                : kDisabledActionTextStyle,
+          )));
+    }
+    return buttonsList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      children: _buildButtonsWithNames(),
+    );
+  }
+}
 
 ```
+
+update **`home_page.dart`** 📄 file , to include the CustomButtonBar and hook events
+
+```
+// ignore_for_file: prefer_const_constructors
+
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
+import '../data/data.dart';
+import '../helpers/app_constants.dart';
+import '../models/model.dart';
+import '../widgets/action_button.dart';
+import '../widgets/countdown_timer.dart';
+import '../widgets/custom_button_bar.dart';
+import '../widgets/label_countdown_timer.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final CountDownController _clockController = CountDownController();
+  final LabelCountDownTimerController _labelClockController =
+      LabelCountDownTimerController();
+
+  var _durationInSecond = 0;
+
+  List<PomodoroType> _pomodoroData = [];
+  PomodoroType? selectedPomodoro;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _pomodoroData = pomodoroData;
+    selectedPomodoro = _pomodoroData[1];
+    _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Half Screen Dimensions
+    final double height = MediaQuery.of(context).size.height / 4;
+    final double width = MediaQuery.of(context).size.width / 4;
+
+    void _timerCompleted() {
+      NDialog(
+        dialogStyle: DialogStyle(titleDivider: true),
+        title: Text("Timer Completed"),
+        content: Text("Time to break."),
+      ).show(context);
+    }
+
+    CountDownTimer _countDownTimer = CountDownTimer(
+        duration: _durationInSecond,
+        fillColor: Colors.tealAccent,
+        onComplete: () => _timerCompleted());
+
+    CircularCountDownTimer clock = CircularCountDownTimer(
+      controller: _clockController,
+      isReverseAnimation: true,
+      ringColor: kBackgroundColor,
+      height: height,
+      width: width,
+      strokeWidth: 25.0,
+      autoStart: false,
+      duration: _countDownTimer.duration,
+      isReverse: true,
+      textStyle: TextStyle(color: kSecondaryColor),
+      fillColor: _countDownTimer.fillColor,
+      backgroundColor: kbuttonBackgoundColor,
+      strokeCap: StrokeCap.round,
+      onComplete: _countDownTimer.onComplete,
+    );
+
+    LabelCountdownTimer labelClock = LabelCountdownTimer(
+      controller: _labelClockController,
+      duration: _countDownTimer.duration,
+      autoStart: false,
+      isReverse: true,
+      textStyle: kBigLableTextStyle,
+      onComplete: _countDownTimer.onComplete,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0.0,
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.headset_off),
+        ),
+        title: Text('Pomodoro'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CustomButtonBar(
+                  pomodoroData: _pomodoroData,
+                  callback: (pomodorotype) {
+                    _setSelectedPomodoro(pomodorotype);
+                  }),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Center(
+              child: clock,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            //bottom Panel
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: kBackgroundColor,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30.0),
+                    )),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: labelClock,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ActionButton(
+                          title: "Start",
+                          onPressed: () {
+                            _clockController.start();
+                            _labelClockController.start();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Pause",
+                          onPressed: () {
+                            _clockController.pause();
+                            _labelClockController.pause();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Resume",
+                          onPressed: () {
+                            _clockController.resume();
+                            _labelClockController.resume();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Restart",
+                          onPressed: () {
+                            _clockController.restart(
+                                duration: _durationInSecond);
+                            _labelClockController.restart(
+                                duration: _durationInSecond);
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _setSelectedPomodoro(PomodoroType pomodorotype) {
+    selectedPomodoro = pomodorotype;
+    setState(() {
+      _durationInSecond = selectedPomodoro!.timeInMinutes! * 60;
+      _clockController.restart(duration: _durationInSecond);
+      _labelClockController.restart(duration: _durationInSecond);
+    });
+  }
+}
+
+```
+
+![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1645628541/pomodoro_app/01_03_home_screen_custombar_rtz4hr.png)
