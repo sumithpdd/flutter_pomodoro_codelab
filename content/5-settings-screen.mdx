@@ -229,46 +229,158 @@ Everything is hard coded as the data is coming from dummy data.  Lets add a data
 
 <https://pub.dev/packages/realm>
 
-Install the realm package
-
-First create database_service to call **firestore database** and retrieve users.
-
-Create a new 📄 file under **services** 📁 folder  => **database_service.dart** 📄 file , The attendees are all the users they have registered. We update our database service and create a new function to get all users.
+Install the realm package and update pubspec.yaml
 
 ```
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:devfest_flutter_firebase_chat/helpers/constants.dart';
-import 'package:devfest_flutter_firebase_chat/models/app_user.dart';
+dependencies:
+  circular_countdown_timer: ^0.2.0
+  cupertino_icons: ^1.0.2
+  flutter:
+    sdk: flutter
+  ndialog: ^4.1.1
+  realm: ^0.2.0+alpha
+```
+
+Update our model to Realm spec , `model.dart` 📄 file under `models `📁 folder , We have created pomodoroType model and UserRunHistoryModel
+
+```
+import 'package:realm/realm.dart';
+part 'model.g.dart';
+
+@RealmModel()
+class _PomodoroType {
+  @PrimaryKey()
+  late final int id;
+  String? typeLabel;
+  int? timeInMinutes;
+  bool? isReverse;
+//  PomodoroType({
+//     required this.id,
+//     required this.typeLabel,
+//     required this.timeInMinutes,
+//     required this.isReverse,
+//   });
+}
+
+@RealmModel()
+class _UserRunHistory {
+  late final int id;
+  _PomodoroType? pomodoroType;
+  int? stopTimeInMinutes;
+  // DateTime? updatedTime;
+  late int updatedTime; // no DateTime yet (stay tuned)
+}
+
+```
+
+To generate the `model.g.dart `file ,
+
+run this this in terminal
+
+```
+flutter pub run realm generate
+```
+
+
+
+we will create a database_service class to call ***Ream* database** and perform CRUD.
+
+Create a new 📄 file under **services** 📁 folder  => **database_service.dart** 📄 file 
+
+```
+// ignore_for_file: avoid_print
+
+ 
+import 'package:realm/realm.dart';
+
+import '../data/data.dart';
+import '../models/model.dart';
 
 class DatabaseService {
-  Future<AppUser> getUser(String userId) async {
-    DocumentSnapshot userDoc = await usersRef.doc(userId).get();
-    return AppUser.fromDoc(userDoc);
+  late Realm realm;
+  DatabaseService() {
+    final config = Configuration([PomodoroType.schema, UserRunHistory.schema]);
+    // delete when schema is changed cannot find any other way for windows
+    //Realm.deleteRealm(config.path);
+    realm = Realm(config);
+  }
+  int get pomodoroTypeCount => realm.all<PomodoroType>().length;
+
+  seedData() {
+    deleteAllPomodoroType();
+    deleteAllUserRunHistory();
+    var allItems = realm.all<PomodoroType>();
+
+    if (allItems.isEmpty) {
+      realm.write(() {
+        realm.addAll(pomodoroData);
+      });
+    }
   }
 
-  Future<List<AppUser>> searchUsers(String currentUserId, String name) async {
-    QuerySnapshot usersSnap =
-        await usersRef.where('name', isGreaterThanOrEqualTo: name).get();
-    List<AppUser> users = [];
-    for (var doc in usersSnap.docs) {
-      AppUser user = AppUser.fromDoc(doc);
-      if (user.id != currentUserId) {
-        users.add(user);
-      }
-    }
-    return users;
+  RealmResults<PomodoroType> getAllPomodoroType() {
+    print("Getting all PomodoroType from the Realm.");
+    var pomodoroType = realm.all<PomodoroType>();
+    return pomodoroType;
   }
 
-  Future<List<AppUser>> getAllUsers(String currentUserId) async {
-    QuerySnapshot userSnapshot = await usersRef.get();
-    List<AppUser> users = [];
-    for (var doc in userSnapshot.docs) {
-      AppUser user = AppUser.fromDoc(doc);
-      if (user.id != currentUserId) users.add(user);
+  void deleteAllPomodoroType() {
+    print("Getting all PomodoroType from the Realm.");
+    realm.write(() {
+      var pomodoroType = realm.all<PomodoroType>();
+      realm.deleteMany(pomodoroType);
+    });
+  }
+
+  void deleteAllUserRunHistory() {
+    realm.write(() {
+      var userRunHistory = realm.all<UserRunHistory>();
+      realm.deleteMany(userRunHistory);
+    });
+  }
+
+  RealmResults<PomodoroType> searchPomodoroTypeByLabel(String typeLabel) {
+    print("Getting all $typeLabel PomodoroType from the Realm.");
+    var filteredPomodoroType =
+        realm.all<PomodoroType>().query("typeLabel == '$typeLabel'");
+    print('Found ${filteredPomodoroType.length} $typeLabel PomodoroType');
+    return filteredPomodoroType;
+  }
+
+  void saveUserRunHistory(PomodoroType pomodoroType) {
+    realm.write(() {
+      UserRunHistory userRunHistory = UserRunHistory(
+          getUserRunHistoryLastId(), DateTime.now().millisecondsSinceEpoch);
+      userRunHistory.pomodoroType = pomodoroType;
+      userRunHistory.stopTimeInMinutes = pomodoroType.timeInMinutes!;
+      realm.add(userRunHistory);
+      print('saved ${userRunHistory.id}');
+    });
+  }
+
+//primary key trying to get unique id
+  int getUserRunHistoryLastId() {
+    var lastUserRunHistory = realm.all<UserRunHistory>().length;
+    if (lastUserRunHistory == 0) {
+      return 1;
+    } else {
+      return lastUserRunHistory + 1;
     }
-    return users;
+  }
+
+  void savePomodoroType(
+      PomodoroType pomodoroType, String savetypeLabel, int timeInMinutes) {
+    realm.write(() {
+      pomodoroType.typeLabel = savetypeLabel;
+      pomodoroType.timeInMinutes = timeInMinutes;
+    });
+  }
+
+  void dispose() {
+    realm.close();
   }
 }
+
 ```
 
 ### Model to Store Current User data
