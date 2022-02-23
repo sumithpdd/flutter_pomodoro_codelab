@@ -17,9 +17,24 @@ keywords:
 ---
 # 🧑‍🤝‍🧑 Pomodoro Screen
 
-Lets start building the **Pomodoro screen**
+Lets start building the **Pomodoro screen** with circle spinner and some functionality, to start, pause.
 
-for Pomodoro we need messages, we will create a model for messages , Create a new 📄 file under models 📁 folder  => **`message.dart`**
+For the circular spinner we add a new package **circular_countdown_timer** in **pubspec.yaml** 📄 file
+
+also on completion on the timer, we will like to show a dialog to the user so we will use **ndialog** package
+
+```
+dependencies:
+  circular_countdown_timer: ^0.2.0
+  cupertino_icons: ^1.0.2
+  flutter:
+    sdk: flutter
+  ndialog: ^4.1.1
+```
+
+
+
+📄 file under models 📁 folder  => **`message.dart`**
 
 ```
 import 'package:cloud_firestore/cloud_firestore.dart';
