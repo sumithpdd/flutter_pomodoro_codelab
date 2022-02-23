@@ -142,4 +142,4 @@ Canonical URLs are generated automatically.
 
 ## ☁️ Deploy
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b74b211f-b2b3-415f-843c-f1b8578a17ec/deploy-status)](https://app.netlify.com/sites/flutter_pomodoro_codelab/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d4e23f9f-ef5c-4b12-b43c-e1701d2f3500/deploy-status)](https://app.netlify.com/sites/pomodoro-codelab/deploys)
