@@ -32,400 +32,207 @@ dependencies:
   ndialog: ^4.1.1
 ```
 
-
-
-📄 file under models 📁 folder  => **`message.dart`**
+to hold common properties between both countdown -> circular and label , create a class `countdown_timer.dart`📄 file under `widgets `📁 folder
 
 ```
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
-class Message {
-  final String? id, senderId, toUserId, text, imageUrl;
-  final bool? isLiked;
-  final bool? unread;
-  final String? timestamp;
+/// Used to set properties that will be different along the screens
+class CountDownTimer {
+  final int duration;
+  final Color fillColor;
+  final VoidCallback onComplete;
 
-  Message({
-    this.id,
-    this.senderId,
-    this.toUserId,
-    this.text,
-    this.imageUrl,
-    this.isLiked,
-    this.unread,
-    this.timestamp,
+  CountDownTimer({
+    required this.duration,
+    required this.fillColor,
+    required this.onComplete,
   });
-
-  factory Message.fromDoc(DocumentSnapshot doc) {
-    return Message(
-        id: doc.id,
-        senderId: doc['senderId'],
-        toUserId: doc['toUserId'],
-        text: doc['text'],
-        imageUrl: doc['imageUrl'],
-        isLiked: doc['isLiked'],
-        unread: doc['unread'],
-        timestamp: doc['timestamp']);
-  }
 }
-```
-
-We will create some dummy data to work with , update 📄 file data.dart under data 📁 folder , we will create some dummy users and messages
 
 ```
-import 'package:devfest_flutter_firebase_chat/models/app_user.dart';
-import 'package:devfest_flutter_firebase_chat/models/message.dart';
 
-// YOU - current AppUser
-final AppUser currentAppUser = AppUser(
-  id: '0',
-  name: 'Current AppUser',
-  profileImageUrl: 'assets/images/greg.jpg',
-);
-
-// AppUserS
-final AppUser sumith = AppUser(
-  id: '1',
-  name: 'Sumith',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser martin = AppUser(
-  id: '2',
-  name: 'martin',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser laura = AppUser(
-  id: '3',
-  name: 'laura',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser bilal = AppUser(
-  id: '4',
-  name: 'bilal',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser sam = AppUser(
-  id: '5',
-  name: 'Sam',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser sophia = AppUser(
-  id: '6',
-  name: 'Sophia',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-final AppUser steven = AppUser(
-  id: '7',
-  name: 'Steven',
-  profileImageUrl: 'assets/images/user_placeholder.jpg',
-);
-
-// EXAMPLE CHATS ON HOME SCREEN
-List<Message> chats = [
-  Message(
-    senderId: 'sumith',
-    timestamp: '5:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'laura',
-    timestamp: '4:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'martin',
-    timestamp: '3:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: false,
-  ),
-  Message(
-    senderId: 'sophia',
-    timestamp: '2:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'bilal',
-    timestamp: '1:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: false,
-  ),
-  Message(
-    senderId: 'sam',
-    timestamp: '12:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: false,
-  ),
-  Message(
-    senderId: 'bilal',
-    timestamp: '11:30 AM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: false,
-    unread: false,
-  ),
-];
-
-// EXAMPLE MESSAGES IN CHAT SCREEN
-List<Message> messages = [
-  Message(
-    senderId: 'martin',
-    timestamp: '5:30 PM',
-    text: 'Hey, how\'s it going? What did you do today?',
-    isLiked: true,
-    unread: true,
-  ),
-  Message(
-    senderId: currentAppUser.id,
-    timestamp: '4:30 PM',
-    text: 'Just walked my dog. She was super duper cute. The best puppy!!',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'martin',
-    timestamp: '3:45 PM',
-    text: 'How\'s the doggie?',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'martin',
-    timestamp: '3:15 PM',
-    text: 'All the food',
-    isLiked: true,
-    unread: true,
-  ),
-  Message(
-    senderId: currentAppUser.id,
-    timestamp: '2:30 PM',
-    text: 'Nice! What kind of food did you eat?',
-    isLiked: false,
-    unread: true,
-  ),
-  Message(
-    senderId: 'martin',
-    timestamp: '2:00 PM',
-    text: 'I ate so much food today.',
-    isLiked: false,
-    unread: true,
-  ),
-];
-```
-
-Now we start with our chat screen
-
-Create a new 📄 file under `screens` 📁 folder  => **`chat_screen.dart`**
+update **home_page.dart** 📄 file , to add the **circular timer** and **hook up** the start, resume buttons
 
 ```
 // ignore_for_file: prefer_const_constructors
 
-import 'package:devfest_flutter_firebase_chat/data/data.dart';
-import 'package:devfest_flutter_firebase_chat/helpers/app_constants.dart';
-import 'package:devfest_flutter_firebase_chat/models/message.dart';
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
+import 'package:ndialog/ndialog.dart';
+import '../helpers/app_constants.dart';
+import '../widgets/action_button.dart';
+import '../widgets/countdown_timer.dart';
+import '../widgets/label_countdown_timer.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _textMessageController = TextEditingController();
-  bool _isComposing = false;
+class _HomePageState extends State<HomePage> {
+  final CountDownController _clockController = CountDownController();
+  final LabelCountDownTimerController _labelClockController =
+      LabelCountDownTimerController();
 
-  final List<Message> _messages = messages;
+  var _durationInSecond = 0;
 
-  _buildMessage(Message message, bool isMe) {
-    final Widget msg = Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        margin: isMe
-            ? const EdgeInsets.only(
-                top: 8.0,
-                bottom: 8.0,
-                left: 80.0,
-              )
-            : const EdgeInsets.only(
-                top: 8.0,
-                bottom: 8.0,
-              ),
-        padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
-        width: MediaQuery.of(context).size.width * 0.75,
-        decoration: BoxDecoration(
-          color: isMe
-              ? AppConstants.hexToColor(AppConstants.APP_PRIMARY_TILE_COLOR)
-              : AppConstants.hexToColor(
-                  AppConstants.APP_BACKGROUND_COLOR_WHITE),
-          borderRadius: isMe
-              ? const BorderRadius.only(
-                  topLeft: Radius.circular(15.0),
-                  topRight: Radius.circular(15.0),
-                  bottomLeft: Radius.circular(15.0),
-                )
-              : const BorderRadius.only(
-                  topLeft: Radius.circular(15.0),
-                  topRight: Radius.circular(15.0),
-                  bottomRight: Radius.circular(15.0),
-                ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              message.text!,
-              style: TextStyle(
-                color: isMe ? Colors.white60 : Colors.blueGrey,
-                fontSize: 12.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 8.0),
-            Row(
-              mainAxisAlignment:
-                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  message.timestamp!,
-                  style: TextStyle(
-                    color: isMe
-                        ? AppConstants.hexToColor(
-                            AppConstants.APP_PRIMARY_COLOR_GREEN)
-                        : AppConstants.hexToColor(
-                            AppConstants.APP_BACKGROUND_COLOR_GRAY),
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  @override
+  void initState() {
+    super.initState();
 
-    return Row(
-      children: <Widget>[msg],
-    );
-  }
-
-  _buildMessageComposer() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      height: 70.0,
-      color: AppConstants.hexToColor(AppConstants.APP_BACKGROUND_COLOR_WHITE),
-      child: Row(
-        children: <Widget>[
-          RawMaterialButton(
-            onPressed: () {},
-            child: Icon(
-              Icons.camera_alt,
-              color: AppConstants.hexToColor(
-                  AppConstants.APP_BACKGROUND_COLOR_GRAY),
-              size: 25.0,
-            ),
-            shape: const CircleBorder(),
-            elevation: 2.0,
-            fillColor: Theme.of(context).primaryColor,
-            padding: const EdgeInsets.all(15.0),
-          ),
-          Expanded(
-            child: TextField(
-              controller: _textMessageController,
-              textCapitalization: TextCapitalization.sentences,
-              onChanged: (String text) {
-                setState(() {
-                  _isComposing = text.isNotEmpty;
-                });
-              },
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  ),
-                ),
-                hintText: 'Type your message...',
-                filled: true,
-                hintStyle: TextStyle(
-                    color: AppConstants.hexToColor(
-                        AppConstants.APP_PRIMARY_FONT_COLOR_LIGHT)),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            iconSize: 25.0,
-            color:
-                AppConstants.hexToColor(AppConstants.APP_PRIMARY_COLOR_ACTION),
-            onPressed: _isComposing
-                ? () => _handleSubmitted(_textMessageController.text)
-                : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _handleSubmitted(String text) {
-    _textMessageController.clear();
-
-    setState(() {
-      _isComposing = false;
-    });
-    Message message = Message(
-      senderId: currentAppUser.id,
-      timestamp: '6:30 PM',
-      text: text,
-      isLiked: true,
-      unread: true,
-    );
-    setState(() {
-      _messages.insert(0, message);
-    });
+    _durationInSecond = 10 * 60;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Half Screen Dimensions
+    final double height = MediaQuery.of(context).size.height / 4;
+    final double width = MediaQuery.of(context).size.width / 4;
+
+    void _timerCompleted() {
+      NDialog(
+        dialogStyle: DialogStyle(titleDivider: true),
+        title: Text("Timer Completed"),
+        content: Text("Time to break."),
+      ).show(context);
+    }
+
+    CountDownTimer _countDownTimer = CountDownTimer(
+        duration: _durationInSecond,
+        fillColor: Colors.tealAccent,
+        onComplete: () => _timerCompleted());
+
+    CircularCountDownTimer clock = CircularCountDownTimer(
+      controller: _clockController,
+      isReverseAnimation: true,
+      ringColor: kBackgroundColor,
+      height: height,
+      width: width,
+      strokeWidth: 25.0,
+      autoStart: false,
+      duration: _countDownTimer.duration,
+      isReverse: true,
+      textStyle: TextStyle(color: kSecondaryColor),
+      fillColor: _countDownTimer.fillColor,
+      backgroundColor: kbuttonBackgoundColor,
+      strokeCap: StrokeCap.round,
+      onComplete: _countDownTimer.onComplete,
+    );
+
+    LabelCountdownTimer labelClock = LabelCountdownTimer(
+      controller: _labelClockController,
+      duration: _countDownTimer.duration,
+      autoStart: false,
+      isReverse: true,
+      textStyle: kBigLableTextStyle,
+      onComplete: _countDownTimer.onComplete,
+    );
+
     return Scaffold(
-      appBar: AppBar(title: Text("Chats")),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+      appBar: AppBar(
+        elevation: 0.0,
+        leading: IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.headset_off),
+        ),
+        title: Text('Pomodoro'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.settings),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                reverse: true,
-                padding: const EdgeInsets.only(top: 15.0),
-                itemCount: _messages.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final Message message = _messages[index];
-                  final bool isMe = message.senderId == currentAppUser.id;
-                  return _buildMessage(message, isMe);
-                },
+            Center(
+              child: clock,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            //bottom Panel
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: kBackgroundColor,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30.0),
+                    )),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: labelClock,
+                ),
               ),
             ),
-            _buildMessageComposer(),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ActionButton(
+                          title: "Start",
+                          onPressed: () {
+                            _clockController.start();
+                            _labelClockController.start();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Pause",
+                          onPressed: () {
+                            _clockController.pause();
+                            _labelClockController.pause();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Resume",
+                          onPressed: () {
+                            _clockController.resume();
+                            _labelClockController.resume();
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      ActionButton(
+                          title: "Restart",
+                          onPressed: () {
+                            _clockController.restart(
+                                duration: _durationInSecond);
+                            _labelClockController.restart(
+                                duration: _durationInSecond);
+                          }),
+                      SizedBox(
+                        width: 10,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
     );
   }
 }
-```
-
-To test update **main.dart** and point home to the new **chat_screen.dart**
 
 ```
-home: const ChatScreen(),
-```
 
-![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1643227480/Codelab/flutter_06_chat_screen_hnbtyp.png)
+
+
+![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1645626793/pomodoro_app/01_02_home_screen_circular_cyuo3u.png)
