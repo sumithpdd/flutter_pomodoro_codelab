@@ -203,9 +203,27 @@ class _FacilitiesWidgetState extends State<IncrementDecrement> {
 
 ```
 
+update **`home_page.dart`** 📄 file so that we can navigate to settings screen
 
+```
+.....
+void goToSettings(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+  }
+  ..
+```
 
+and the **onPressed** of settings icon
 
+```
+IconButton(
+            onPressed: () {
+              goToSettings(context);
+            },
+            icon: Icon(Icons.settings),
+          ),
+```
 
 
 
