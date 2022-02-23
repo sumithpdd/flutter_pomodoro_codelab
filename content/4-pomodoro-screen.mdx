@@ -238,3 +238,29 @@ class _HomePageState extends State<HomePage> {
 ![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1645626793/pomodoro_app/01_02_home_screen_circular_cyuo3u.png)
 
 # Adding Pomodoro Type
+
+This will give us an option to change timer for different tasks
+
+Create a new class** `model.dart`**` `📄 file  under `models `📁 folder
+
+```
+class PomodoroType {
+  late final int id;
+  final String? typeLabel;
+  final int? timeInMinutes;
+  final bool? isReverse;
+  PomodoroType({
+    required this.id,
+    required this.typeLabel,
+    required this.timeInMinutes,
+    required this.isReverse,
+  });
+}
+
+```
+
+we will add some dummydata to try out how this works , update** `data.dart`**` `📄 file  under `data `📁 folder
+
+```
+
+```
