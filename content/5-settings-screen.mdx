@@ -200,7 +200,6 @@ class _FacilitiesWidgetState extends State<IncrementDecrement> {
     );
   }
 }
-
 ```
 
 update **`home_page.dart`** 📄 file so that we can navigate to settings screen
@@ -243,7 +242,7 @@ dependencies:
   realm: ^0.2.0+alpha
 ```
 
-Update our model to Realm spec , `model.dart` 📄 file under `models `📁 folder , We have created **PomodoroType** model and **UserRunHistoryModel**
+Update our model to Realm spec , `model.dart` 📄 file under `models`📁 folder , We have created **PomodoroType** model and **UserRunHistoryModel**
 
 ```
 import 'package:realm/realm.dart';
@@ -272,10 +271,9 @@ class _UserRunHistory {
   // DateTime? updatedTime;
   late int updatedTime; // no DateTime yet (stay tuned)
 }
-
 ```
 
-To generate the `model.g.dart `file , run this this in terminal
+To generate the `model.g.dart`file , run this this in terminal
 
 ```
 flutter pub run realm generate
@@ -378,7 +376,6 @@ class DatabaseService {
     realm.close();
   }
 }
-
 ```
 
 ### Model to Store Current User data
@@ -392,7 +389,6 @@ import 'model.dart';
 class Appuser {
   PomodoroType? selectedPomodoro;
 }
-
 ```
 
 > We will use **provider later** to maintain state within app. We use to pass data between screens, for that we will use provider package A mixture between dependency injection (DI) and state management, built with widgets for widgets.
@@ -615,10 +611,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 }
-
 ```
 
-modify `settings_screen.dart `and add ***database calls***
+modify `settings_screen.dart`and add ***database calls***
 
 ```
 // ignore_for_file: prefer_const_constructors
@@ -804,9 +799,6 @@ class _FacilitiesWidgetState extends State<IncrementDecrement> {
     );
   }
 }
-
 ```
 
- 
-
-![](https://res.cloudinary.com/sitecore/image/upload/c_limit,q_80,w_2000/v1645631681/pomodoro_app/03_Pomodoro_Updates_hcwijr.png)
+![](https://res.cloudinary.com/flutterdevcamp/image/upload/v1645631681/pomodoro_app/03_Pomodoro_Updates_hcwijr.png)
